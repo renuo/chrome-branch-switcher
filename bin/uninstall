@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+echo "Unloading the launch agent..."
+launchctl unload ~/Library/LaunchAgents/ch.renuo.switch_branch.plist
+
+echo "Removing the launch agent plist..."
+rm ~/Library/LaunchAgents/ch.renuo.switch_branch.plist
+
+echo "Uninstall complete. The daemon has been removed."

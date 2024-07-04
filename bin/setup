@@ -1,0 +1,72 @@
+#!/bin/bash
+set -e
+
+echo "Starting setup..."
+
+
+# Step 2: Make sure the server script is executable
+echo "Making server script executable..."
+chmod +x bin/server
+chmod +x bin/uninstall
+
+# Function to check if the daemon is already installed
+daemon_installed() {
+  if launchctl list | grep -q ch.renuo.switch_branch; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Check if the daemon is already installed
+if daemon_installed; then
+  echo "Daemon is already installed and running."
+  exit 0
+fi
+
+# Step 3: Create the launch agent plist
+echo "Creating launch agent plist..."
+cat <<EOF > ~/Library/LaunchAgents/ch.renuo.switch_branch.plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>ch.renuo.switch_branch</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/bin/ruby</string>
+      <string>$(pwd)/lib/server.rb</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/switch_branch.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/switch_branch.log</string>
+  </dict>
+</plist>
+EOF
+
+# Step 4: Load the launch agent
+echo "Loading the launch agent..."
+launchctl load ~/Library/LaunchAgents/ch.renuo.switch_branch.plist
+
+
+# Step 5: Start the daemon immediately
+echo "Starting the daemon..."
+launchctl start ch.renuo.switch_branch
+
+# Step 6: Check the status of the daemon
+echo "Checking the status of the daemon..."
+if launchctl list | grep -q ch.renuo.switch_branch; then
+  echo "Daemon is running."
+else
+  echo "Failed to start the daemon."
+  exit 1
+fi
+
+echo "Setup complete. The server will start automatically on reboot."
+echo "To uninstall the daemon, run 'bin/uninstall'."
