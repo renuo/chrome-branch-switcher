@@ -4,7 +4,7 @@ require 'json'
 # Create the server
 server = WEBrick::HTTPServer.new(
   Port: 64014,
-  BindAddress: '0.0.0.0',
+  BindAddress: 'localhost',
   AccessLog: [],
   Logger: WEBrick::Log.new('/dev/null') # Disable logging
 )
