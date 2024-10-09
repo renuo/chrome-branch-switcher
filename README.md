@@ -46,4 +46,8 @@ bin/uninstall
 
 This script will unload the launch agent and remove the plist file.
 
+## Development
+
+Run the server with `bin/server`. Upon changes you need to restart the process.
+
 Made with ❤️ by Renuo

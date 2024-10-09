@@ -9,6 +9,8 @@ server = WEBrick::HTTPServer.new(
   Logger: WEBrick::Log.new('/dev/null') # Disable logging
 )
 
+puts "Server started on port #{server.config[:Port]}. Ready and listening."
+
 # Define the branch switching handler
 server.mount_proc '/switch-branch' do |req, res|
   if req.request_method == 'OPTIONS'
@@ -27,11 +29,15 @@ server.mount_proc '/switch-branch' do |req, res|
       home = data['home']
 
       if branch && project_slug
-        result = `cd #{home}/#{project_slug} && git checkout #{branch}`
+        command = "cd #{home}/#{project_slug} && git checkout #{branch}"
+        puts "Executing command: #{command}"
+        output = `#{command}`
+        result=$?.success?
+        puts "Switch result: #{output}. Result: #{result}"
         res.status = 200
         res['Content-Type'] = 'application/json'
         res['Access-Control-Allow-Origin'] = '*'
-        res.body = { status: 'success', message: result }.to_json
+        res.body = { status: 'success', message: output }.to_json
       else
         res.status = 400
         res['Content-Type'] = 'application/json'
